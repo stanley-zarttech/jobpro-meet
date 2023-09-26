@@ -81,7 +81,8 @@ interface IProps extends AbstractProps {
 const useStyles = makeStyles()(theme => {
     return {
         container: {
-            backgroundColor: theme.palette.ui01,
+            // backgroundColor: theme.palette.ui01,
+            backgroundColor: [ '#FFFFF0' ],
             flexShrink: 0,
             overflow: 'hidden',
             position: 'relative',
@@ -107,6 +108,7 @@ const useStyles = makeStyles()(theme => {
         chatHeader: {
             height: '60px',
             position: 'relative',
+            color: [ '#323334' ],
             width: '100%',
             zIndex: 1,
             display: 'flex',
@@ -114,7 +116,8 @@ const useStyles = makeStyles()(theme => {
             padding: `${theme.spacing(3)} ${theme.spacing(4)}`,
             alignItems: 'center',
             boxSizing: 'border-box',
-            color: theme.palette.text01,
+
+            // color: theme.palette.text01,
             ...withPixelLineHeight(theme.typography.heading6),
 
             '.jitsi-icon': {
@@ -266,13 +269,15 @@ const Chat = ({
                     countBadge: _isPollsTabFocused && _nbUnreadMessages > 0 ? _nbUnreadMessages : undefined,
                     id: CHAT_TABS.CHAT,
                     controlsId: `${CHAT_TABS.CHAT}-panel`,
-                    label: t('chat.tabs.chat')
+                    label: t('chat.tabs.chat'),
+                    color: '##040004'
                 }, {
                     accessibilityLabel: t('chat.tabs.polls'),
                     countBadge: !_isPollsTabFocused && _nbUnreadPolls > 0 ? _nbUnreadPolls : undefined,
                     id: CHAT_TABS.POLLS,
                     controlsId: `${CHAT_TABS.POLLS}-panel`,
-                    label: t('chat.tabs.polls')
+                    label: t('chat.tabs.polls'),
+                    color: '##040004'
                 }
                 ] } />
         );

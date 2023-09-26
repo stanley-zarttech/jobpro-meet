@@ -32,7 +32,8 @@ import {
 } from '../../base/connection/constants';
 import { getURLWithoutParams } from '../../base/connection/utils';
 import {
-    JitsiConferenceEvents } from '../../base/lib-jitsi-meet';
+    JitsiConferenceEvents
+} from '../../base/lib-jitsi-meet';
 import { SET_AUDIO_MUTED, SET_VIDEO_MUTED } from '../../base/media/actionTypes';
 import { toggleCameraFacingMode } from '../../base/media/actions';
 import { MEDIA_TYPE, VIDEO_TYPE } from '../../base/media/constants';
@@ -118,139 +119,139 @@ externalAPIEnabled && MiddlewareRegistry.register(store => next => action => {
     const { type } = action;
 
     switch (type) {
-    case APP_WILL_MOUNT:
-        _registerForNativeEvents(store);
-        break;
-    case APP_WILL_UNMOUNT:
-        _unregisterForNativeEvents();
-        break;
-    case CONFERENCE_FAILED: {
-        const { error, ...data } = action;
+        case APP_WILL_MOUNT:
+            _registerForNativeEvents(store);
+            break;
+        case APP_WILL_UNMOUNT:
+            _unregisterForNativeEvents();
+            break;
+        case CONFERENCE_FAILED: {
+            const { error, ...data } = action;
 
-        // XXX Certain CONFERENCE_FAILED errors are recoverable i.e. they have
-        // prevented the user from joining a specific conference but the app may
-        // be able to eventually join the conference. For example, the app will
-        // ask the user for a password upon
-        // JitsiConferenceErrors.PASSWORD_REQUIRED and will retry joining the
-        // conference afterwards. Such errors are to not reach the native
-        // counterpart of the External API (or at least not in the
-        // fatality/finality semantics attributed to
-        // conferenceFailed:/onConferenceFailed).
-        if (!error.recoverable) {
-            _sendConferenceEvent(store, /* action */ {
-                error: _toErrorString(error),
-                ...data
-            });
-        }
-        break;
-    }
-
-    case CONFERENCE_LEFT:
-        _sendConferenceEvent(store, action);
-        break;
-
-    case CONFERENCE_JOINED:
-        _sendConferenceEvent(store, action);
-        _registerForEndpointTextMessages(store);
-        break;
-
-    case CONFERENCE_BLURRED:
-        sendEvent(store, CONFERENCE_BLURRED, {});
-        break;
-
-    case CONFERENCE_FOCUSED:
-        sendEvent(store, CONFERENCE_FOCUSED, {});
-        break;
-
-    case CONNECTION_DISCONNECTED: {
-        // FIXME: This is a hack. See the description in the JITSI_CONNECTION_CONFERENCE_KEY constant definition.
-        // Check if this connection was attached to any conference.
-        // If it wasn't, fake a CONFERENCE_TERMINATED event.
-        const { connection } = action;
-        const conference = connection[JITSI_CONNECTION_CONFERENCE_KEY];
-
-        if (!conference) {
-            // This action will arrive late, so the locationURL stored on the state is no longer valid.
-            const locationURL = connection[JITSI_CONNECTION_URL_KEY];
-
-            sendEvent(
-                store,
-                CONFERENCE_TERMINATED,
-                /* data */ {
-                    url: _normalizeUrl(locationURL)
+            // XXX Certain CONFERENCE_FAILED errors are recoverable i.e. they have
+            // prevented the user from joining a specific conference but the app may
+            // be able to eventually join the conference. For example, the app will
+            // ask the user for a password upon
+            // JitsiConferenceErrors.PASSWORD_REQUIRED and will retry joining the
+            // conference afterwards. Such errors are to not reach the native
+            // counterpart of the External API (or at least not in the
+            // fatality/finality semantics attributed to
+            // conferenceFailed:/onConferenceFailed).
+            if (!error.recoverable) {
+                _sendConferenceEvent(store, /* action */ {
+                    error: _toErrorString(error),
+                    ...data
                 });
-        }
-
-        break;
-    }
-
-    case ENTER_PICTURE_IN_PICTURE:
-        sendEvent(store, type, /* data */ {});
-        break;
-
-    case OPEN_CHAT:
-    case CLOSE_CHAT: {
-        sendEvent(
-            store,
-            CHAT_TOGGLED,
-            /* data */ {
-                isOpen: action.type === OPEN_CHAT
-            });
-        break;
-    }
-
-    case PARTICIPANT_JOINED:
-    case PARTICIPANT_LEFT: {
-        // Skip these events while not in a conference. SDK users can still retrieve them.
-        const { conference } = store.getState()['features/base/conference'];
-
-        if (!conference) {
+            }
             break;
         }
 
-        const { participant } = action;
+        case CONFERENCE_LEFT:
+            _sendConferenceEvent(store, action);
+            break;
 
-        const isVirtualScreenshareParticipant = isScreenShareParticipantById(store.getState(), participant.id);
+        case CONFERENCE_JOINED:
+            _sendConferenceEvent(store, action);
+            _registerForEndpointTextMessages(store);
+            break;
 
-        if (isVirtualScreenshareParticipant) {
+        case CONFERENCE_BLURRED:
+            sendEvent(store, CONFERENCE_BLURRED, {});
+            break;
+
+        case CONFERENCE_FOCUSED:
+            sendEvent(store, CONFERENCE_FOCUSED, {});
+            break;
+
+        case CONNECTION_DISCONNECTED: {
+            // FIXME: This is a hack. See the description in the JITSI_CONNECTION_CONFERENCE_KEY constant definition.
+            // Check if this connection was attached to any conference.
+            // If it wasn't, fake a CONFERENCE_TERMINATED event.
+            const { connection } = action;
+            const conference = connection[JITSI_CONNECTION_CONFERENCE_KEY];
+
+            if (!conference) {
+                // This action will arrive late, so the locationURL stored on the state is no longer valid.
+                const locationURL = connection[JITSI_CONNECTION_URL_KEY];
+
+                sendEvent(
+                    store,
+                    CONFERENCE_TERMINATED,
+                /* data */ {
+                        url: _normalizeUrl(locationURL)
+                    });
+            }
+
             break;
         }
 
-        sendEvent(
-            store,
-            action.type,
-            participantToParticipantInfo(participant) /* data */
-        );
-        break;
-    }
+        case ENTER_PICTURE_IN_PICTURE:
+            sendEvent(store, type, /* data */ {});
+            break;
 
-    case READY_TO_CLOSE:
-        sendEvent(store, type, /* data */ {});
-        break;
-
-    case SET_ROOM:
-        _maybeTriggerEarlyConferenceWillJoin(store, action);
-        break;
-
-    case SET_AUDIO_MUTED:
-        if (action.muted !== oldAudioMuted) {
+        case OPEN_CHAT:
+        case CLOSE_CHAT: {
             sendEvent(
                 store,
-                'AUDIO_MUTED_CHANGED',
+                CHAT_TOGGLED,
+            /* data */ {
+                    isOpen: action.type === OPEN_CHAT
+                });
+            break;
+        }
+
+        case PARTICIPANT_JOINED:
+        case PARTICIPANT_LEFT: {
+            // Skip these events while not in a conference. SDK users can still retrieve them.
+            const { conference } = store.getState()['features/base/conference'];
+
+            if (!conference) {
+                break;
+            }
+
+            const { participant } = action;
+
+            const isVirtualScreenshareParticipant = isScreenShareParticipantById(store.getState(), participant.id);
+
+            if (isVirtualScreenshareParticipant) {
+                break;
+            }
+
+            sendEvent(
+                store,
+                action.type,
+                participantToParticipantInfo(participant) /* data */
+            );
+            break;
+        }
+
+        case READY_TO_CLOSE:
+            sendEvent(store, type, /* data */ {});
+            break;
+
+        case SET_ROOM:
+            _maybeTriggerEarlyConferenceWillJoin(store, action);
+            break;
+
+        case SET_AUDIO_MUTED:
+            if (action.muted !== oldAudioMuted) {
+                sendEvent(
+                    store,
+                    'AUDIO_MUTED_CHANGED',
                 /* data */ {
+                        muted: action.muted
+                    });
+            }
+            break;
+
+        case SET_VIDEO_MUTED:
+            sendEvent(
+                store,
+                'VIDEO_MUTED_CHANGED',
+            /* data */ {
                     muted: action.muted
                 });
-        }
-        break;
-
-    case SET_VIDEO_MUTED:
-        sendEvent(
-            store,
-            'VIDEO_MUTED_CHANGED',
-            /* data */ {
-                muted: action.muted
-            });
-        break;
+            break;
     }
 
     return result;
@@ -265,38 +266,38 @@ externalAPIEnabled && MiddlewareRegistry.register(store => next => action => {
 externalAPIEnabled && StateListenerRegistry.register(
     /* selector */ state => state['features/base/tracks'],
     /* listener */ debounce((tracks: ITrack[], store: IStore) => {
-        const oldScreenShares = store.getState()['features/mobile/external-api'].screenShares || [];
-        const newScreenShares = tracks
-            .filter(track => track.mediaType === MEDIA_TYPE.SCREENSHARE || track.videoType === VIDEO_TYPE.DESKTOP)
-            .map(track => track.participantId);
+    const oldScreenShares = store.getState()['features/mobile/external-api'].screenShares || [];
+    const newScreenShares = tracks
+        .filter(track => track.mediaType === MEDIA_TYPE.SCREENSHARE || track.videoType === VIDEO_TYPE.DESKTOP)
+        .map(track => track.participantId);
 
-        oldScreenShares.forEach(participantId => {
-            if (!newScreenShares.includes(participantId)) {
-                sendEvent(
-                    store,
-                    SCREEN_SHARE_TOGGLED,
+    oldScreenShares.forEach(participantId => {
+        if (!newScreenShares.includes(participantId)) {
+            sendEvent(
+                store,
+                SCREEN_SHARE_TOGGLED,
                     /* data */ {
-                        participantId,
-                        sharing: false
-                    });
-            }
-        });
+                    participantId,
+                    sharing: false
+                });
+        }
+    });
 
-        newScreenShares.forEach(participantId => {
-            if (!oldScreenShares.includes(participantId)) {
-                sendEvent(
-                    store,
-                    SCREEN_SHARE_TOGGLED,
+    newScreenShares.forEach(participantId => {
+        if (!oldScreenShares.includes(participantId)) {
+            sendEvent(
+                store,
+                SCREEN_SHARE_TOGGLED,
                     /* data */ {
-                        participantId,
-                        sharing: true
-                    });
-            }
-        });
+                    participantId,
+                    sharing: true
+                });
+        }
+    });
 
-        store.dispatch(setParticipantsWithScreenShare(newScreenShares));
+    store.dispatch(setParticipantsWithScreenShare(newScreenShares));
 
-    }, 100));
+}, 100));
 
 /**
  * Registers for events sent from the native side via NativeEventEmitter.
@@ -422,7 +423,7 @@ function _registerForEndpointTextMessages(store: IStore) {
         JitsiConferenceEvents.ENDPOINT_MESSAGE_RECEIVED,
         (...args: any[]) => {
             if (args && args.length >= 2) {
-                const [ sender, eventData ] = args;
+                const [sender, eventData] = args;
 
                 if (eventData.name === ENDPOINT_TEXT_MESSAGE_NAME) {
                     sendEvent(
@@ -438,31 +439,31 @@ function _registerForEndpointTextMessages(store: IStore) {
 
     conference?.on(
         JitsiConferenceEvents.MESSAGE_RECEIVED,
-            (id: string, message: string, timestamp: number) => {
-                sendEvent(
-                    store,
-                    CHAT_MESSAGE_RECEIVED,
+        (id: string, message: string, timestamp: number) => {
+            sendEvent(
+                store,
+                CHAT_MESSAGE_RECEIVED,
                     /* data */ {
-                        senderId: id,
-                        message,
-                        isPrivate: false,
-                        timestamp
-                    });
-            }
+                    senderId: id,
+                    message,
+                    isPrivate: false,
+                    timestamp
+                });
+        }
     );
 
     conference?.on(
         JitsiConferenceEvents.PRIVATE_MESSAGE_RECEIVED,
         (id: string, message: string, timestamp: number) => {
             sendEvent(
-                    store,
-                    CHAT_MESSAGE_RECEIVED,
+                store,
+                CHAT_MESSAGE_RECEIVED,
                     /* data */ {
-                        senderId: id,
-                        message,
-                        isPrivate: true,
-                        timestamp
-                    });
+                    senderId: id,
+                    message,
+                    isPrivate: true,
+                    timestamp
+                });
         }
     );
 }
@@ -476,7 +477,7 @@ function _registerForEndpointTextMessages(store: IStore) {
  * {@code error}.
  */
 function _toErrorString(
-        error: Error | { message?: string; name?: string; } | string) {
+    error: Error | { message?: string; name?: string; } | string) {
     // XXX In lib-jitsi-meet and jitsi-meet we utilize errors in the form of
     // strings, Error instances, and plain objects which resemble Error.
     return (
@@ -492,7 +493,7 @@ function _toErrorString(
  * will emit an early {@link CONFERENCE_WILL_JOIN} event to let the external API
  * know that a conference is being joined. Before that happens a connection must
  * be created and only then base/conference feature would emit
- * {@link CONFERENCE_WILL_JOIN}. That is fine for the Jitsi Meet app, because
+ * {@link CONFERENCE_WILL_JOIN}. That is fine for the Joble Meet app, because
  * that's the a conference instance gets created, but it's too late for
  * the external API to learn that. The latter {@link CONFERENCE_WILL_JOIN} is
  * swallowed in {@link _swallowEvent}.
@@ -532,13 +533,13 @@ function _normalizeUrl(url: URL) {
  * @returns {void}
  */
 function _sendConferenceEvent(
-        store: IStore,
-        action: {
-            conference: IJitsiConference;
-            isAudioMuted?: boolean;
-            type: string;
-            url?: string;
-        }) {
+    store: IStore,
+    action: {
+        conference: IJitsiConference;
+        isAudioMuted?: boolean;
+        type: string;
+        url?: string;
+    }) {
     const { conference, type, ...data } = action;
 
     // For these (redux) actions, conference identifies a JitsiConference
@@ -560,13 +561,13 @@ function _sendConferenceEvent(
     let type_;
 
     switch (type) {
-    case CONFERENCE_FAILED:
-    case CONFERENCE_LEFT:
-        type_ = CONFERENCE_TERMINATED;
-        break;
-    default:
-        type_ = type;
-        break;
+        case CONFERENCE_FAILED:
+        case CONFERENCE_LEFT:
+            type_ = CONFERENCE_TERMINATED;
+            break;
+        default:
+            type_ = type;
+            break;
     }
 
     sendEvent(store, type_, data);
@@ -619,10 +620,10 @@ function _swallowConferenceLeft({ getState }: IStore, action: AnyAction, { url }
  */
 function _swallowEvent(store: IStore, action: AnyAction, data: any) {
     switch (action.type) {
-    case CONFERENCE_LEFT:
-        return _swallowConferenceLeft(store, action, data);
+        case CONFERENCE_LEFT:
+            return _swallowConferenceLeft(store, action, data);
 
-    default:
-        return false;
+        default:
+            return false;
     }
 }

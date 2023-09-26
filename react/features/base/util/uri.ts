@@ -51,7 +51,7 @@ export const URI_PROTOCOL_PATTERN = '^([a-z][a-z0-9\\.\\+-]*:)';
 
 /**
  * Excludes/removes certain characters from a specific path part which are
- * incompatible with Jitsi Meet on the client and/or server sides. The main
+ * incompatible with Joble Meet on the client and/or server sides. The main
  * use case for this method is to clean up the room name and the tenant.
  *
  * @param {?string} pathPart - The path part to fix.
@@ -236,7 +236,7 @@ export function parseStandardURIString(str: string) {
     // XXX A URI string as defined by RFC 3986 does not contain any whitespace.
     // Usually, a browser will have already encoded any whitespace. In order to
     // avoid potential later problems related to whitespace in URI, strip any
-    // whitespace. Anyway, the Jitsi Meet app is not known to utilize unencoded
+    // whitespace. Anyway, the Joble Meet app is not known to utilize unencoded
     // whitespace so the stripping is deemed safe.
     str = str.replace(/\s/g, '');
 
@@ -316,11 +316,11 @@ export function parseStandardURIString(str: string) {
 }
 
 /**
- * Parses a specific URI which (supposedly) references a Jitsi Meet resource
+ * Parses a specific URI which (supposedly) references a Joble Meet resource
  * (location).
  *
  * @param {(string|undefined)} uri - The URI to parse which (supposedly)
- * references a Jitsi Meet resource (location).
+ * references a Joble Meet resource (location).
  * @public
  * @returns {{
  *     contextRoot: string,
@@ -341,12 +341,12 @@ export function parseURIString(uri?: string): any {
 
     const obj = parseStandardURIString(_fixURIStringScheme(uri));
 
-    // XXX While the components/segments of pathname are URI encoded, Jitsi Meet
+    // XXX While the components/segments of pathname are URI encoded, Joble Meet
     // on the client and/or server sides still don't support certain characters.
     obj.pathname = obj.pathname.split('/').map((pathPart: any) => _fixPathPart(pathPart))
         .join('/');
 
-    // Add the properties that are specific to a Jitsi Meet resource (location)
+    // Add the properties that are specific to a Joble Meet resource (location)
     // such as contextRoot, room:
 
     // contextRoot
@@ -429,19 +429,19 @@ export function toURLString(obj?: (Object | string)) {
     let str;
 
     switch (typeof obj) {
-    case 'object':
-        if (obj) {
-            if (obj instanceof URL) {
-                str = obj.href;
-            } else {
-                str = urlObjectToString(obj);
+        case 'object':
+            if (obj) {
+                if (obj instanceof URL) {
+                    str = obj.href;
+                } else {
+                    str = urlObjectToString(obj);
+                }
             }
-        }
-        break;
+            break;
 
-    case 'string':
-        str = String(obj);
-        break;
+        case 'string':
+            str = String(obj);
+            break;
     }
 
     return str;
@@ -520,8 +520,8 @@ export function urlObjectToString(o: { [key: string]: any; }): string | undefine
     const room = o.roomName || o.room;
 
     if (room
-            && (url.pathname.endsWith('/')
-                || !url.pathname.endsWith(`/${room}`))) {
+        && (url.pathname.endsWith('/')
+            || !url.pathname.endsWith(`/${room}`))) {
         pathname.endsWith('/') || (pathname += '/');
         pathname += room;
     }
@@ -559,12 +559,12 @@ export function urlObjectToString(o: { [key: string]: any; }): string | undefine
 
     let { hash } = url;
 
-    for (const urlPrefix of [ 'config', 'iceServers', 'interfaceConfig', 'devices', 'userInfo', 'appData' ]) {
+    for (const urlPrefix of ['config', 'iceServers', 'interfaceConfig', 'devices', 'userInfo', 'appData']) {
         const urlParamsArray
             = _objectToURLParamsArray(
                 o[`${urlPrefix}Overwrite`]
-                    || o[urlPrefix]
-                    || o[`${urlPrefix}Override`]);
+                || o[urlPrefix]
+                || o[`${urlPrefix}Override`]);
 
         if (urlParamsArray.length) {
             let urlParamsString

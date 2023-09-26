@@ -52,7 +52,7 @@ export default class HangupButton extends Component<Props> {
         return (
             <ToolbarButton
                 accessibilityLabel = { this.accessibilityLabel }
-                customClass = 'hangup-button'
+                customClass = 'hangup-button circular-button bg-red'
                 icon = { this.icon }
                 onClick = { this._onClick } />
         );

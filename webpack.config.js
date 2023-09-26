@@ -8,7 +8,7 @@ const webpack = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 /**
- * The URL of the Jitsi Meet deployment to be proxy to in the context of
+ * The URL of the Joble Meet deployment to be proxy to in the context of
  * development with webpack-dev-server.
  */
 const devServerProxyTarget
@@ -46,11 +46,11 @@ function getBundleAnalyzerPlugin(analyzeBundle, name) {
         return [];
     }
 
-    return [ new BundleAnalyzerPlugin({
+    return [new BundleAnalyzerPlugin({
         analyzerMode: 'disabled',
         generateStatsFile: true,
         statsFilename: `${name}-stats.json`
-    }) ];
+    })];
 }
 
 /**
@@ -64,13 +64,13 @@ function getBundleAnalyzerPlugin(analyzeBundle, name) {
  */
 function devServerProxyBypass({ path }) {
     if (path.startsWith('/css/')
-            || path.startsWith('/doc/')
-            || path.startsWith('/fonts/')
-            || path.startsWith('/images/')
-            || path.startsWith('/lang/')
-            || path.startsWith('/sounds/')
-            || path.startsWith('/static/')
-            || path.endsWith('.wasm')) {
+        || path.startsWith('/doc/')
+        || path.startsWith('/fonts/')
+        || path.startsWith('/images/')
+        || path.startsWith('/lang/')
+        || path.startsWith('/sounds/')
+        || path.startsWith('/static/')
+        || path.endsWith('.wasm')) {
 
         return path;
     }
@@ -100,7 +100,7 @@ function getConfig(options = {}) {
         devtool: isProduction ? 'source-map' : 'eval-source-map',
         mode: isProduction ? 'production' : 'development',
         module: {
-            rules: [ {
+            rules: [{
                 // Transpile ES2015 (aka ES6) to ES5. Accept the JSX syntax by React
                 // as well.
 
@@ -150,13 +150,13 @@ function getConfig(options = {}) {
                 ]
             }, {
                 test: /\.svg$/,
-                use: [ {
+                use: [{
                     loader: '@svgr/webpack',
                     options: {
                         dimensions: false,
                         expandProps: 'start'
                     }
-                } ]
+                }]
             }, {
                 test: /\.tsx?$/,
                 exclude: /node_modules/,
@@ -165,7 +165,7 @@ function getConfig(options = {}) {
                     configFile: 'tsconfig.web.json',
                     transpileOnly: !isProduction // Skip type checking for dev builds.,
                 }
-            } ]
+            }]
         },
         node: {
             // Allow the use of the real filename of the module being executed. By
@@ -185,11 +185,11 @@ function getConfig(options = {}) {
         },
         plugins: [
             detectCircularDeps
-                && new CircularDependencyPlugin({
-                    allowAsyncCycles: false,
-                    exclude: /node_modules/,
-                    failOnError: false
-                })
+            && new CircularDependencyPlugin({
+                allowAsyncCycles: false,
+                exclude: /node_modules/,
+                failOnError: false
+            })
         ].filter(Boolean),
         resolve: {
             alias: {
@@ -367,13 +367,15 @@ module.exports = (_env, argv) => {
                     './react/features/stream-effects/noise-suppression/NoiseSuppressorWorklet.ts'
             },
 
-            module: { rules: [
-                ...config.module.rules,
-                {
-                    test: resolve(__dirname, 'node_modules/webpack-dev-server/client'),
-                    loader: 'null-loader'
-                }
-            ] },
+            module: {
+                rules: [
+                    ...config.module.rules,
+                    {
+                        test: resolve(__dirname, 'node_modules/webpack-dev-server/client'),
+                        loader: 'null-loader'
+                    }
+                ]
+            },
             plugins: [
             ],
             performance: getPerformanceHints(perfHintOptions, 200 * 1024),

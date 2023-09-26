@@ -25,7 +25,7 @@ import { _cleanupConfig, _setDeeplinkingDefaults } from './functions';
 /**
  * The initial state of the feature base/config when executing in a
  * non-React Native environment. The mandatory configuration to be passed to
- * JitsiMeetJS#init(). The app will download config.js from the Jitsi Meet
+ * JitsiMeetJS#init(). The app will download config.js from the Joble Meet
  * deployment and take its values into account but the values below will be
  * enforced (because they are essential to the correct execution of the
  * application).
@@ -38,7 +38,7 @@ const INITIAL_NON_RN_STATE: IConfig = {
 /**
  * The initial state of the feature base/config when executing in a React Native
  * environment. The mandatory configuration to be passed to JitsiMeetJS#init().
- * The app will download config.js from the Jitsi Meet deployment and take its
+ * The app will download config.js from the Joble Meet deployment and take its
  * values into account but the values below will be enforced (because they are
  * essential to the correct execution of the application).
  *
@@ -52,10 +52,10 @@ const INITIAL_RN_STATE: IConfig = {
  * new configs. Needed in order to keep backwards compatibility.
  */
 const CONFERENCE_HEADER_MAPPING = {
-    hideConferenceTimer: [ 'conference-timer' ],
-    hideConferenceSubject: [ 'subject' ],
-    hideParticipantsStats: [ 'participants-count' ],
-    hideRecordingLabel: [ 'recording' ]
+    hideConferenceTimer: ['conference-timer'],
+    hideConferenceSubject: ['subject'],
+    hideParticipantsStats: ['participants-count'],
+    hideRecordingLabel: ['recording']
 };
 
 export interface IConfigState extends IConfig {
@@ -78,50 +78,50 @@ export interface IConfigState extends IConfig {
 
 ReducerRegistry.register<IConfigState>('features/base/config', (state = _getInitialState(), action): IConfigState => {
     switch (action.type) {
-    case UPDATE_CONFIG:
-        return _updateConfig(state, action);
+        case UPDATE_CONFIG:
+            return _updateConfig(state, action);
 
-    case CONFIG_WILL_LOAD:
-        return {
-            error: undefined,
-
-            /**
-            * The URL of the location associated with/configured by this
-            * configuration.
-            *
-            * @type URL
-            */
-            locationURL: action.locationURL
-        };
-
-    case LOAD_CONFIG_ERROR:
-        // XXX LOAD_CONFIG_ERROR is one of the settlement execution paths of
-        // the asynchronous "loadConfig procedure/process" started with
-        // CONFIG_WILL_LOAD. Due to the asynchronous nature of it, whoever
-        // is settling the process needs to provide proof that they have
-        // started it and that the iteration of the process being completed
-        // now is still of interest to the app.
-        if (state.locationURL === action.locationURL) {
+        case CONFIG_WILL_LOAD:
             return {
+                error: undefined,
+
                 /**
-                * The {@link Error} which prevented the loading of the
-                * configuration of the associated {@code locationURL}.
+                * The URL of the location associated with/configured by this
+                * configuration.
                 *
-                * @type Error
+                * @type URL
                 */
-                error: action.error
+                locationURL: action.locationURL
             };
-        }
-        break;
 
-    case SET_CONFIG:
-        return _setConfig(state, action);
+        case LOAD_CONFIG_ERROR:
+            // XXX LOAD_CONFIG_ERROR is one of the settlement execution paths of
+            // the asynchronous "loadConfig procedure/process" started with
+            // CONFIG_WILL_LOAD. Due to the asynchronous nature of it, whoever
+            // is settling the process needs to provide proof that they have
+            // started it and that the iteration of the process being completed
+            // now is still of interest to the app.
+            if (state.locationURL === action.locationURL) {
+                return {
+                    /**
+                    * The {@link Error} which prevented the loading of the
+                    * configuration of the associated {@code locationURL}.
+                    *
+                    * @type Error
+                    */
+                    error: action.error
+                };
+            }
+            break;
 
-    case OVERWRITE_CONFIG:
-        return {
-            ...state,
-            ...action.config
-        };
+        case SET_CONFIG:
+            return _setConfig(state, action);
+
+        case OVERWRITE_CONFIG:
+            return {
+                ...state,
+                ...action.config
+            };
     }
 
     return state;
@@ -130,7 +130,7 @@ ReducerRegistry.register<IConfigState>('features/base/config', (state = _getInit
 /**
  * Gets the initial state of the feature base/config. The mandatory
  * configuration to be passed to JitsiMeetJS#init(). The app will download
- * config.js from the Jitsi Meet deployment and take its values into account but
+ * config.js from the Joble Meet deployment and take its values into account but
  * the values below will be enforced (because they are essential to the correct
  * execution of the application).
  *
@@ -175,7 +175,7 @@ function _setConfig(state: IConfig, { config }: { config: IConfig; }) {
         { error: undefined },
 
         // The config of _getInitialState() is meant to override the config
-        // downloaded from the Jitsi Meet deployment because the former contains
+        // downloaded from the Joble Meet deployment because the former contains
         // values that are mandatory.
         _getInitialState()
     );
@@ -196,8 +196,8 @@ function _getConferenceInfo(config: IConfig) {
 
     if (conferenceInfo) {
         return {
-            alwaysVisible: conferenceInfo.alwaysVisible ?? [ ...CONFERENCE_INFO.alwaysVisible ],
-            autoHide: conferenceInfo.autoHide ?? [ ...CONFERENCE_INFO.autoHide ]
+            alwaysVisible: conferenceInfo.alwaysVisible ?? [...CONFERENCE_INFO.alwaysVisible],
+            autoHide: conferenceInfo.autoHide ?? [...CONFERENCE_INFO.autoHide]
         };
     }
 
@@ -369,13 +369,13 @@ function _translateLegacyConfig(oldValue: IConfig) {
             if (key === 'hideRecordingLabel') {
                 newValue.conferenceInfo.alwaysVisible
                     = (newValue.conferenceInfo?.alwaysVisible ?? [])
-                    .filter(c => !CONFERENCE_HEADER_MAPPING[key].includes(c));
+                        .filter(c => !CONFERENCE_HEADER_MAPPING[key].includes(c));
                 newValue.conferenceInfo.autoHide
                     = _.union(newValue.conferenceInfo.autoHide, CONFERENCE_HEADER_MAPPING[key]);
             } else {
                 newValue.conferenceInfo.alwaysVisible
                     = (newValue.conferenceInfo.alwaysVisible ?? [])
-                    .filter(c => !CONFERENCE_HEADER_MAPPING[key as keyof typeof CONFERENCE_HEADER_MAPPING].includes(c));
+                        .filter(c => !CONFERENCE_HEADER_MAPPING[key as keyof typeof CONFERENCE_HEADER_MAPPING].includes(c));
                 newValue.conferenceInfo.autoHide
                     = (newValue.conferenceInfo.autoHide ?? []).filter(c =>
                         !CONFERENCE_HEADER_MAPPING[key as keyof typeof CONFERENCE_HEADER_MAPPING].includes(c));
@@ -517,7 +517,7 @@ function _translateLegacyConfig(oldValue: IConfig) {
     }
 
     if (oldValue.speakerStatsOrder !== undefined
-         && newValue.speakerStats.order === undefined) {
+        && newValue.speakerStats.order === undefined) {
         newValue.speakerStats = {
             ...newValue.speakerStats,
             order: oldValue.speakerStatsOrder

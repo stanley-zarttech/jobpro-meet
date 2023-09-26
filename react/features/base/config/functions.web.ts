@@ -100,9 +100,9 @@ export function _setDeeplinkingDefaults(deeplinking: IDeeplinkingConfig) {
         ios = {} as IDeeplinkingMobileConfig
     } = deeplinking;
 
-    desktop.appName = desktop.appName || 'Jitsi Meet';
+    desktop.appName = desktop.appName || 'Joble Meet';
 
-    ios.appName = ios.appName || 'Jitsi Meet';
+    ios.appName = ios.appName || 'Joble Meet';
     ios.appScheme = ios.appScheme || 'org.jitsi.meet';
     ios.downloadLink = ios.downloadLink
         || 'https://itunes.apple.com/us/app/jitsi-meet/id1165103905';
@@ -113,7 +113,7 @@ export function _setDeeplinkingDefaults(deeplinking: IDeeplinkingConfig) {
         ios.dynamicLink.isi = ios.dynamicLink.isi || '1165103905';
     }
 
-    android.appName = android.appName || 'Jitsi Meet';
+    android.appName = android.appName || 'Joble Meet';
     android.appScheme = android.appScheme || 'org.jitsi.meet';
     android.downloadLink = android.downloadLink
         || 'https://play.google.com/store/apps/details?id=org.jitsi.meet';
@@ -135,12 +135,12 @@ export function _setDeeplinkingDefaults(deeplinking: IDeeplinkingConfig) {
  * @returns {Array}
  */
 const buildButtonsArray = (
-        buttonsWithNotifyClick?: NotifyClickButton[],
-        customButtons?: {
-            icon: string;
-            id: string;
-            text: string;
-        }[]
+    buttonsWithNotifyClick?: NotifyClickButton[],
+    customButtons?: {
+        icon: string;
+        id: string;
+        text: string;
+    }[]
 ): NotifyClickButton[] => {
     const customButtonsWithNotifyClick = customButtons?.map(({ id }) => {
         return {
@@ -167,7 +167,7 @@ const buildButtonsArray = (
  * @returns {Array} - The list of buttons.
  */
 export function getButtonsWithNotifyClick(
-        state: IReduxState
+    state: IReduxState
 ): NotifyClickButton[] {
     const { buttonsWithNotifyClick, customToolbarButtons } = state['features/base/config'];
 
@@ -184,7 +184,7 @@ export function getButtonsWithNotifyClick(
  * @returns {Array} - The list of participant menu buttons.
  */
 export function getParticipantMenuButtonsWithNotifyClick(
-        state: IReduxState
+    state: IReduxState
 ): NotifyClickButton[] {
     const { participantMenuButtonsWithNotifyClick, customParticipantMenuButtons } = state['features/base/config'];
 
@@ -202,8 +202,8 @@ export function getParticipantMenuButtonsWithNotifyClick(
  * @returns {string|undefined}
  */
 export const getButtonNotifyMode = (
-        buttonKey: string,
-        buttonsWithNotifyClick?: NotifyClickButton[]
+    buttonKey: string,
+    buttonsWithNotifyClick?: NotifyClickButton[]
 ): string | undefined => {
     const notify = buttonsWithNotifyClick?.find(
         (btn: NotifyClickButton) =>

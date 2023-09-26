@@ -105,6 +105,7 @@
 
 div.hangup-button {
     background-color: #CB2233;
+    border-radius: 50%;
 
     @media (hover: hover) and (pointer: fine) {
         &:hover {
@@ -123,6 +124,7 @@ div.hangup-button {
 
 div.hangup-menu-button {
     background-color: #CB2233;
+    border-radius: 50%;
 
     @media (hover: hover) and (pointer: fine) {
         &:hover {
@@ -201,4 +203,31 @@ div.hangup-menu-button {
             margin-bottom: 52px;
         }
     }
+}
+
+.circular-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+
+    border: none;
+    border-radius: 50% !important;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.bg-red {
+    background-color: rgb(196, 5, 5) !important;
+    color: white;
+}
+
+.circular-button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.circular-button .material-icons {
+    font-size: 24px;
 }

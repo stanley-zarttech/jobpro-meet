@@ -51,7 +51,7 @@ export default class Toolbar extends Component<IProps> {
                 onMouseOver = { onMouseOver }>
                 <AudioMuteButton />
                 <VideoMuteButton />
-                <HangupButton customClass = 'hangup-button' />
+                <HangupButton customClass = 'hangup-button circular-button bg-red' />
             </div>
         );
     }

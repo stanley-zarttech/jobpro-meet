@@ -220,39 +220,39 @@ function parseArguments(args) {
     const firstArg = args[0];
 
     switch (typeof firstArg) {
-    case 'string': // old arguments format
-    case 'undefined': {
-        // Not sure which format but we are trying to parse the old
-        // format because if the new format is used everything will be undefined
-        // anyway.
-        const [
-            roomName,
-            width,
-            height,
-            parentNode,
-            configOverwrite,
-            interfaceConfigOverwrite,
-            jwt,
-            onload,
-            lang
-        ] = args;
+        case 'string': // old arguments format
+        case 'undefined': {
+            // Not sure which format but we are trying to parse the old
+            // format because if the new format is used everything will be undefined
+            // anyway.
+            const [
+                roomName,
+                width,
+                height,
+                parentNode,
+                configOverwrite,
+                interfaceConfigOverwrite,
+                jwt,
+                onload,
+                lang
+            ] = args;
 
-        return {
-            roomName,
-            width,
-            height,
-            parentNode,
-            configOverwrite,
-            interfaceConfigOverwrite,
-            jwt,
-            onload,
-            lang
-        };
-    }
-    case 'object': // new arguments format
-        return args[0];
-    default:
-        throw new Error('Can\'t parse the arguments!');
+            return {
+                roomName,
+                width,
+                height,
+                parentNode,
+                configOverwrite,
+                interfaceConfigOverwrite,
+                jwt,
+                onload,
+                lang
+            };
+        }
+        case 'object': // new arguments format
+            return args[0];
+        default:
+            throw new Error('Can\'t parse the arguments!');
     }
 }
 
@@ -289,7 +289,7 @@ function parseSizeParam(value) {
  */
 export default class JitsiMeetExternalAPI extends EventEmitter {
     /**
-     * Constructs new API instance. Creates iframe and loads Jitsi Meet in it.
+     * Constructs new API instance. Creates iframe and loads Joble Meet in it.
      *
      * @param {string} domain - The domain name of the server that hosts the
      * conference.
@@ -481,7 +481,7 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
 
 
     /**
-     * Getter for the large video element in Jitsi Meet.
+     * Getter for the large video element in Joble Meet.
      *
      * @returns {HTMLElement|undefined} - The large video.
      */
@@ -489,9 +489,9 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
         const iframe = this.getIFrame();
 
         if (!this._isLargeVideoVisible
-                || !iframe
-                || !iframe.contentWindow
-                || !iframe.contentWindow.document) {
+            || !iframe
+            || !iframe.contentWindow
+            || !iframe.contentWindow.document) {
             return;
         }
 
@@ -499,7 +499,7 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
     }
 
     /**
-     * Getter for the prejoin video element in Jitsi Meet.
+     * Getter for the prejoin video element in Joble Meet.
      *
      * @returns {HTMLElement|undefined} - The prejoin video.
      */
@@ -507,9 +507,9 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
         const iframe = this.getIFrame();
 
         if (!this._isPrejoinVideoVisible
-                || !iframe
-                || !iframe.contentWindow
-                || !iframe.contentWindow.document) {
+            || !iframe
+            || !iframe.contentWindow
+            || !iframe.contentWindow.document) {
             return;
         }
 
@@ -517,7 +517,7 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
     }
 
     /**
-     * Getter for participant specific video element in Jitsi Meet.
+     * Getter for participant specific video element in Joble Meet.
      *
      * @param {string|undefined} participantId - Id of participant to return the video for.
      *
@@ -528,8 +528,8 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
         const iframe = this.getIFrame();
 
         if (!iframe
-                || !iframe.contentWindow
-                || !iframe.contentWindow.document) {
+            || !iframe.contentWindow
+            || !iframe.contentWindow.document) {
             return;
         }
 
@@ -576,105 +576,105 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
             const userID = data.id;
 
             switch (name) {
-            case 'video-conference-joined': {
-                if (typeof this._tmpE2EEKey !== 'undefined') {
+                case 'video-conference-joined': {
+                    if (typeof this._tmpE2EEKey !== 'undefined') {
 
-                    const hexToBytes = hex => {
-                        const bytes = [];
+                        const hexToBytes = hex => {
+                            const bytes = [];
 
-                        for (let c = 0; c < hex.length; c += 2) {
-                            bytes.push(parseInt(hex.substring(c, c + 2), 16));
-                        }
+                            for (let c = 0; c < hex.length; c += 2) {
+                                bytes.push(parseInt(hex.substring(c, c + 2), 16));
+                            }
 
-                        return bytes;
+                            return bytes;
+                        };
+
+                        this.executeCommand('setMediaEncryptionKey', JSON.stringify({
+                            exportedKey: hexToBytes(this._tmpE2EEKey),
+                            index: 0
+                        }));
+
+                        this._tmpE2EEKey = undefined;
+                    }
+
+                    this._myUserID = userID;
+                    this._participants[userID] = {
+                        email: data.email,
+                        avatarURL: data.avatarURL
                     };
-
-                    this.executeCommand('setMediaEncryptionKey', JSON.stringify({
-                        exportedKey: hexToBytes(this._tmpE2EEKey),
-                        index: 0
-                    }));
-
-                    this._tmpE2EEKey = undefined;
                 }
 
-                this._myUserID = userID;
-                this._participants[userID] = {
-                    email: data.email,
-                    avatarURL: data.avatarURL
-                };
-            }
-
-            // eslint-disable-next-line no-fallthrough
-            case 'participant-joined': {
-                this._participants[userID] = this._participants[userID] || {};
-                this._participants[userID].displayName = data.displayName;
-                this._participants[userID].formattedDisplayName
-                    = data.formattedDisplayName;
-                changeParticipantNumber(this, 1);
-                break;
-            }
-            case 'participant-left':
-                changeParticipantNumber(this, -1);
-                delete this._participants[userID];
-                break;
-            case 'display-name-change': {
-                const user = this._participants[userID];
-
-                if (user) {
-                    user.displayName = data.displayname;
-                    user.formattedDisplayName = data.formattedDisplayName;
+                // eslint-disable-next-line no-fallthrough
+                case 'participant-joined': {
+                    this._participants[userID] = this._participants[userID] || {};
+                    this._participants[userID].displayName = data.displayName;
+                    this._participants[userID].formattedDisplayName
+                        = data.formattedDisplayName;
+                    changeParticipantNumber(this, 1);
+                    break;
                 }
-                break;
-            }
-            case 'email-change': {
-                const user = this._participants[userID];
+                case 'participant-left':
+                    changeParticipantNumber(this, -1);
+                    delete this._participants[userID];
+                    break;
+                case 'display-name-change': {
+                    const user = this._participants[userID];
 
-                if (user) {
-                    user.email = data.email;
+                    if (user) {
+                        user.displayName = data.displayname;
+                        user.formattedDisplayName = data.formattedDisplayName;
+                    }
+                    break;
                 }
-                break;
-            }
-            case 'avatar-changed': {
-                const user = this._participants[userID];
+                case 'email-change': {
+                    const user = this._participants[userID];
 
-                if (user) {
-                    user.avatarURL = data.avatarURL;
+                    if (user) {
+                        user.email = data.email;
+                    }
+                    break;
                 }
-                break;
-            }
-            case 'on-stage-participant-changed':
-                this._onStageParticipant = userID;
-                this.emit('largeVideoChanged');
-                break;
-            case 'large-video-visibility-changed':
-                this._isLargeVideoVisible = data.isVisible;
-                this.emit('largeVideoChanged');
-                break;
-            case 'prejoin-screen-loaded':
-                this._participants[userID] = {
-                    displayName: data.displayName,
-                    formattedDisplayName: data.formattedDisplayName
-                };
-                break;
-            case 'on-prejoin-video-changed':
-                this._isPrejoinVideoVisible = data.isVisible;
-                this.emit('prejoinVideoChanged');
-                break;
-            case 'video-conference-left':
-                changeParticipantNumber(this, -1);
-                delete this._participants[this._myUserID];
-                break;
-            case 'video-quality-changed':
-                this._videoQuality = data.videoQuality;
-                break;
-            case 'breakout-rooms-updated':
-                this.updateNumberOfParticipants(data.rooms);
-                break;
-            case 'local-storage-changed':
-                jitsiLocalStorage.setItem('jitsiLocalStorage', data.localStorageContent);
+                case 'avatar-changed': {
+                    const user = this._participants[userID];
 
-                // Since this is internal event we don't need to emit it to the consumer of the API.
-                return true;
+                    if (user) {
+                        user.avatarURL = data.avatarURL;
+                    }
+                    break;
+                }
+                case 'on-stage-participant-changed':
+                    this._onStageParticipant = userID;
+                    this.emit('largeVideoChanged');
+                    break;
+                case 'large-video-visibility-changed':
+                    this._isLargeVideoVisible = data.isVisible;
+                    this.emit('largeVideoChanged');
+                    break;
+                case 'prejoin-screen-loaded':
+                    this._participants[userID] = {
+                        displayName: data.displayName,
+                        formattedDisplayName: data.formattedDisplayName
+                    };
+                    break;
+                case 'on-prejoin-video-changed':
+                    this._isPrejoinVideoVisible = data.isVisible;
+                    this.emit('prejoinVideoChanged');
+                    break;
+                case 'video-conference-left':
+                    changeParticipantNumber(this, -1);
+                    delete this._participants[this._myUserID];
+                    break;
+                case 'video-quality-changed':
+                    this._videoQuality = data.videoQuality;
+                    break;
+                case 'breakout-rooms-updated':
+                    this.updateNumberOfParticipants(data.rooms);
+                    break;
+                case 'local-storage-changed':
+                    jitsiLocalStorage.setItem('jitsiLocalStorage', data.localStorageContent);
+
+                    // Since this is internal event we don't need to emit it to the consumer of the API.
+                    return true;
             }
 
             const eventName = events[name];
@@ -823,7 +823,7 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
      * id: participantId //participantId of the new dominant speaker
      * }}
      * {@code suspendDetected} - receives event notifications about detecting suspend event in host computer.
-     * {@code readyToClose} - all hangup operations are completed and Jitsi Meet
+     * {@code readyToClose} - all hangup operations are completed and Joble Meet
      * is ready to be disposed.
      * @returns {void}
      *
@@ -849,7 +849,7 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
     }
 
     /**
-     * Removes the listeners and removes the Jitsi Meet frame.
+     * Removes the listeners and removes the Joble Meet frame.
      *
      * @returns {void}
      */
@@ -1187,7 +1187,7 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
     }
 
     /**
-     * Returns the iframe that loads Jitsi Meet.
+     * Returns the iframe that loads Joble Meet.
      *
      * @returns {HTMLElement} The iframe.
      */
@@ -1325,7 +1325,7 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
      */
     sendProxyConnectionEvent(event) {
         this._transport.sendEvent({
-            data: [ event ],
+            data: [event],
             name: 'proxy-connection-event'
         });
     }
@@ -1393,7 +1393,7 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
      * @param { string } options.mode - Recording mode, either `file` or `stream`.
      * @param { string } options.dropboxToken - Dropbox oauth2 token.
      * @param { boolean } options.shouldShare - Whether the recording should be shared with the participants or not.
-     * Only applies to certain jitsi meet deploys.
+     * Only applies to certain Joble Meet deploys.
      * @param { string } options.rtmpStreamKey - The RTMP stream key.
      * @param { string } options.rtmpBroadcastID - The RTMP broadcast ID.
      * @param { string } options.youtubeStreamKey - The youtube stream key.
@@ -1440,11 +1440,13 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
 
             this.executeCommand('setMediaEncryptionKey', JSON.stringify({
                 exportedKey: Array.from(new Uint8Array(exportedKey)),
-                index }));
+                index
+            }));
         } else {
             this.executeCommand('setMediaEncryptionKey', JSON.stringify({
                 exportedKey: false,
-                index }));
+                index
+            }));
         }
     }
 }

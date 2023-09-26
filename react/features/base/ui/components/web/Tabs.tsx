@@ -11,11 +11,13 @@ interface ITabProps {
     selected: string;
     tabs: Array<{
         accessibilityLabel: string;
+         color: string;
         controlsId: string;
         countBadge?: number;
         disabled?: boolean;
         id: string;
         label: string;
+
     }>;
 }
 
@@ -27,7 +29,9 @@ const useStyles = makeStyles()(theme => {
 
         tab: {
             ...withPixelLineHeight(theme.typography.bodyShortBold),
-            color: theme.palette.text02,
+
+            // color: theme.palette.text02,
+            color: '##040004',
             flex: 1,
             padding: '14px',
             background: 'none',
@@ -53,7 +57,7 @@ const useStyles = makeStyles()(theme => {
             },
 
             '&.selected': {
-                color: theme.palette.text01,
+                color: '##040404',
                 borderColor: theme.palette.action01
             },
 
